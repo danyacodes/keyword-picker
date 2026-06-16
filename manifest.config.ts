@@ -12,15 +12,20 @@ export default defineManifest({
     default_icon: {
       48: 'public/logo.png',
     },
-    default_popup: 'src/popup/index.html',
   },
   permissions: [
     'sidePanel',
-    'contentSettings',
+    'activeTab',
+    'scripting',
   ],
+  background: {
+    service_worker: 'src/background/service-worker.ts',
+    type: 'module',
+  },
   content_scripts: [{
-    js: ['src/content/main.tsx'],
-    matches: ['https://*/*'],
+    js: ['src/content/main.ts'],
+    css: ['src/content/highlight.css'],
+    matches: ['<all_urls>'],
   }],
   side_panel: {
     default_path: 'src/sidepanel/index.html',
