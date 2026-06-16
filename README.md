@@ -1,52 +1,73 @@
-# React + Vite + CRXJS
+# Keyword Picker
 
-This template helps you quickly start developing Chrome extensions with React, TypeScript and Vite. It includes the CRXJS Vite plugin for seamless Chrome extension development.
+Keyword Picker is a Chrome extension that helps collect useful words and text snippets from job pages, resumes, profiles, and other web pages while you browse.
+
+The extension opens in the Chrome side panel. Click a word on the current page to add it to the list, highlight all matching occurrences on the page, edit the collected word if needed, and copy the final list to the clipboard.
 
 ## Features
 
-- React with TypeScript
-- TypeScript support
-- Vite build tool
-- CRXJS Vite plugin integration
-- Chrome extension manifest configuration
+- Click any word on a web page to add it to the side panel
+- Highlight selected words directly on the page
+- Click a highlighted word again or remove it from the panel to deselect it
+- Edit collected words before copying
+- Copy the collected word list, one word per line
+- Optionally copy words in lowercase
+- Copy the active page URL
+- Extract and copy text from page elements by CSS selector
+- Clear all selected words and page highlights at once
+
+## Tech Stack
+
+- React
+- TypeScript
+- Vite
+- CRXJS Vite plugin
+- Chrome Manifest V3
 
 ## Quick Start
 
-1. Install dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start development server:
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-3. Open Chrome and navigate to `chrome://extensions/`, enable "Developer mode", and load the unpacked extension from the `dist` directory.
-
-4. Build for production:
+Build the extension:
 
 ```bash
 npm run build
 ```
 
+Load the extension in Chrome:
+
+1. Open `chrome://extensions/`
+2. Enable Developer mode
+3. Click Load unpacked
+4. Select the generated `dist` directory
+5. Click the extension icon to open the side panel
+
 ## Project Structure
 
-- `src/popup/` - Extension popup UI
-- `src/content/` - Content scripts
+- `src/sidepanel/` - React side panel UI
+- `src/content/` - Content script for word detection, highlighting, and CSS selector extraction
+- `src/background/` - Service worker for opening the side panel and relaying messages
 - `manifest.config.ts` - Chrome extension manifest configuration
+- `public/logo.png` - Extension icon
 
-## Documentation
+## Available Scripts
 
-- [React Documentation](https://reactjs.org/)
-- [Vite Documentation](https://vitejs.dev/)
-- [CRXJS Documentation](https://crxjs.dev/vite-plugin)
+- `npm run dev` - Start Vite in development mode
+- `npm run build` - Type-check and build the extension
+- `npm run preview` - Preview the production build
 
-## Chrome Extension Development Notes
+## How It Works
 
-- Use `manifest.config.ts` to configure your extension
-- The CRXJS plugin automatically handles manifest generation
-- Content scripts should be placed in `src/content/`
-- Popup UI should be placed in `src/popup/`
+The content script listens for clicks on regular page text. When a word is selected, it wraps matching words in highlight spans and sends the selected word to the side panel. The side panel keeps the editable list of selected words and sends commands back to the content script when words are removed or all highlights are cleared.
+
+For CSS selector extraction, the side panel sends the selector to the active tab. The content script reads matching elements, joins their text content, and returns it for copying.
