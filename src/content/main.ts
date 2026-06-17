@@ -176,10 +176,21 @@ function getTextBySelector(selector: string): string {
   }
 }
 
+async function isSidePanelOpen(): Promise<boolean> {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 'IS_SIDE_PANEL_OPEN' })
+    return response?.open === true
+  } catch {
+    return false
+  }
+}
+
 // --- Event listeners ---
 
 // Click handler to pick words
-document.addEventListener('click', (e: MouseEvent) => {
+document.addEventListener('click', async (e: MouseEvent) => {
+  if (!(await isSidePanelOpen())) return
+
   // Ignore clicks on our own highlight spans (they're already selected)
   const target = e.target as HTMLElement
   if (target.closest('#crxjs-app')) return

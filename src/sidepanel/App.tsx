@@ -23,6 +23,11 @@ export default function App() {
     toastTimeout.current = setTimeout(() => setToast(null), 2000)
   }, [])
 
+  useEffect(() => {
+    const port = chrome.runtime.connect({ name: 'sidepanel' })
+    return () => port.disconnect()
+  }, [])
+
   // Listen for word selections from content script
   useEffect(() => {
     const handler = (message: any) => {
