@@ -1,3 +1,5 @@
+import { MessageType } from '../shared/messages'
+
 /**
  * Content script: word selection and highlighting on the page.
  * 
@@ -178,7 +180,7 @@ function getTextBySelector(selector: string): string {
 
 async function isSidePanelOpen(): Promise<boolean> {
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'IS_SIDE_PANEL_OPEN' })
+    const response = await chrome.runtime.sendMessage({ type: MessageType.IsSidePanelOpen })
     return response?.open === true
   } catch {
     return false
@@ -204,7 +206,7 @@ document.addEventListener('click', async (e: MouseEvent) => {
   const lower = word.toLowerCase()
   if (highlightedWords.has(lower)) {
     removeHighlightsForWord(lower)
-    chrome.runtime.sendMessage({ type: 'WORD_DESELECTED', word: lower })
+    chrome.runtime.sendMessage({ type: MessageType.WordDeselected, word: lower })
     return
   }
 
@@ -212,22 +214,22 @@ document.addEventListener('click', async (e: MouseEvent) => {
 
   // Notify side panel
   chrome.runtime.sendMessage({
-    type: 'WORD_SELECTED',
+    type: MessageType.WordSelected,
     word,
   })
 }, true)
 
 // Listen for messages from background / side panel
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.type === 'CLEAR_HIGHLIGHTS') {
+  if (message.type === MessageType.ClearHighlights) {
     clearAllHighlights()
   }
 
-  if (message.type === 'REMOVE_WORD_HIGHLIGHTS') {
+  if (message.type === MessageType.RemoveWordHighlights) {
     removeHighlightsForWord(message.word)
   }
 
-  if (message.type === 'GET_CSS_TEXT') {
+  if (message.type === MessageType.GetCssText) {
     const text = getTextBySelector(message.selector)
     sendResponse({ text })
   }

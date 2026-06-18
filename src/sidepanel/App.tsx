@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { MessageType } from '../shared/messages'
 
 interface WordEntry {
   id: string
@@ -31,7 +32,7 @@ export default function App() {
   // Listen for word selections from content script
   useEffect(() => {
     const handler = (message: any) => {
-      if (message.type === 'WORD_SELECTED') {
+      if (message.type === MessageType.WordSelected) {
         setWords((prev) => {
           // Avoid duplicates (case insensitive)
           const exists = prev.some(
@@ -41,7 +42,7 @@ export default function App() {
           return [...prev, { id: generateId(), original: message.word, edited: message.word }]
         })
       }
-      if (message.type === 'WORD_DESELECTED') {
+      if (message.type === MessageType.WordDeselected) {
         setWords((prev) =>
           prev.filter((w) => w.original.toLowerCase() !== message.word.toLowerCase()),
         )
@@ -62,7 +63,7 @@ export default function App() {
       setWords((prev) => prev.filter((w) => w.id !== id))
       // Tell content script to remove highlights for this word
       chrome.runtime.sendMessage({
-        type: 'REMOVE_WORD_HIGHLIGHTS',
+        type: MessageType.RemoveWordHighlights,
         word: original.toLowerCase(),
       })
     },
@@ -71,7 +72,7 @@ export default function App() {
 
   const clearAll = useCallback(() => {
     setWords([])
-    chrome.runtime.sendMessage({ type: 'CLEAR_HIGHLIGHTS' })
+    chrome.runtime.sendMessage({ type: MessageType.ClearHighlights })
   }, [])
 
   const copyWords = useCallback(async () => {
@@ -87,7 +88,7 @@ export default function App() {
   }, [words, lowercase, showToast])
 
   const copyUrl = useCallback(async () => {
-    chrome.runtime.sendMessage({ type: 'GET_PAGE_URL' }, async (response) => {
+    chrome.runtime.sendMessage({ type: MessageType.GetPageUrl }, async (response) => {
       if (response?.url) {
         try {
           await navigator.clipboard.writeText(response.url)
@@ -105,7 +106,7 @@ export default function App() {
       return
     }
     chrome.runtime.sendMessage(
-      { type: 'GET_CSS_TEXT', selector: cssSelector },
+      { type: MessageType.GetCssText, selector: cssSelector },
       async (response) => {
         if (response?.text) {
           try {

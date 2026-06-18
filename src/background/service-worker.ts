@@ -1,3 +1,5 @@
+import { MessageType } from '../shared/messages'
+
 let sidePanelOpen = false
 const sidePanelPorts = new Set<chrome.runtime.Port>()
 
@@ -29,26 +31,26 @@ chrome.runtime.onConnect.addListener((port) => {
 
 // Relay messages between content script and side panel
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-  if (message.type === 'IS_SIDE_PANEL_OPEN') {
+  if (message.type === MessageType.IsSidePanelOpen) {
     sendResponse({ open: sidePanelOpen })
     return
   }
 
-  if (message.type === 'WORD_SELECTED') {
+  if (message.type === MessageType.WordSelected) {
     // Forward to side panel
     chrome.runtime.sendMessage(message).catch(() => {
       // Side panel might not be open yet
     })
   }
 
-  if (message.type === 'GET_PAGE_URL') {
+  if (message.type === MessageType.GetPageUrl) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       sendResponse({ url: tabs[0]?.url || '' })
     })
     return true // async response
   }
 
-  if (message.type === 'GET_CSS_TEXT') {
+  if (message.type === MessageType.GetCssText) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
         chrome.tabs.sendMessage(tabs[0].id, message, (response) => {
@@ -59,7 +61,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     return true
   }
 
-  if (message.type === 'CLEAR_HIGHLIGHTS') {
+  if (message.type === MessageType.ClearHighlights) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
         chrome.tabs.sendMessage(tabs[0].id, message)
@@ -67,7 +69,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     })
   }
 
-  if (message.type === 'REMOVE_WORD_HIGHLIGHTS') {
+  if (message.type === MessageType.RemoveWordHighlights) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]?.id) {
         chrome.tabs.sendMessage(tabs[0].id, message)
