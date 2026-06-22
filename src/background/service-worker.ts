@@ -25,6 +25,15 @@ chrome.runtime.onConnect.addListener((port) => {
     sidePanelPorts.delete(port);
     if (sidePanelPorts.size === 0) {
       setSidePanelOpen(false);
+      chrome.tabs.query({}, (tabs) => {
+        tabs.forEach((tab) => {
+          if (tab.id) {
+            chrome.tabs
+              .sendMessage(tab.id, { type: MessageType.ClearHighlights })
+              .catch(() => {});
+          }
+        });
+      });
     }
   });
 });
