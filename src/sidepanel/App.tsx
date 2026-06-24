@@ -113,6 +113,10 @@ export default function App() {
     chrome.runtime.sendMessage(
       { type: MessageType.GetCssText, selector: cssSelector },
       async (response) => {
+        if (response?.error === "invalid-selector") {
+          showToast("Invalid CSS selector");
+          return;
+        }
         if (response?.text) {
           try {
             await navigator.clipboard.writeText(response.text);

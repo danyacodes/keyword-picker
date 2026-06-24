@@ -179,18 +179,16 @@ function clearAllHighlights(): void {
 
 /**
  * Extract text content by CSS selector.
+ * Throws when the selector is syntactically invalid so callers can
+ * distinguish "no match" from "bad selector".
  */
 function getTextBySelector(selector: string): string {
   if (!selector.trim()) return "";
-  try {
-    const elements = document.querySelectorAll(selector);
-    return Array.from(elements)
-      .map((el) => (el as HTMLElement).innerText || el.textContent || "")
-      .join("\n")
-      .trim();
-  } catch {
-    return "[Invalid CSS selector]";
-  }
+  const elements = document.querySelectorAll(selector);
+  return Array.from(elements)
+    .map((el) => (el as HTMLElement).innerText || el.textContent || "")
+    .join("\n")
+    .trim();
 }
 
 async function isSidePanelOpen(): Promise<boolean> {
@@ -255,7 +253,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message.type === MessageType.GetCssText) {
-    const text = getTextBySelector(message.selector);
-    sendResponse({ text });
+    try {
+      const text = getTextBySelector(message.selector);
+      sendResponse({ text });
+    } catch {
+      sendResponse({ error: "invalid-selector" });
+    }
   }
 });

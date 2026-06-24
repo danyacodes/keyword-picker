@@ -45,12 +45,8 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     return;
   }
 
-  if (message.type === MessageType.WordSelected) {
-    // Forward to side panel
-    chrome.runtime.sendMessage(message).catch(() => {
-      // Side panel might not be open yet
-    });
-  }
+  // WordSelected / WordDeselected are delivered to the side panel directly by
+  // chrome.runtime.sendMessage from the content script — no relay needed here.
 
   if (message.type === MessageType.GetPageUrl) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
