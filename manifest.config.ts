@@ -13,7 +13,7 @@ export default defineManifest({
       48: "public/logo.png",
     },
   },
-  permissions: ["sidePanel", "activeTab", "scripting"],
+  permissions: ["sidePanel", "activeTab", "scripting", "storage"],
   background: {
     service_worker: "src/background/service-worker.ts",
     type: "module",

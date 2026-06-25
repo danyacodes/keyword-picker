@@ -59,5 +59,28 @@ export function useWords() {
     chrome.runtime.sendMessage({ type: MessageType.ClearHighlights });
   }, []);
 
-  return { words, updateWord, removeWord, clearAll };
+  const addWords = useCallback((newWords: string[]) => {
+    setWords((prev) => {
+      const existingLower = new Set(prev.map((w) => w.original.toLowerCase()));
+      const toAdd = newWords.filter(
+        (w) => w.trim() && !existingLower.has(w.toLowerCase()),
+      );
+      if (toAdd.length === 0) return prev;
+      return [
+        ...prev,
+        ...toAdd.map((w) => ({
+          id: generateId(),
+          original: w,
+          edited: w,
+        })),
+      ];
+    });
+    // Highlight the new words on the page
+    chrome.runtime.sendMessage({
+      type: MessageType.HighlightWords,
+      words: newWords,
+    });
+  }, []);
+
+  return { words, updateWord, removeWord, clearAll, addWords };
 }

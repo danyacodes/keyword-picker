@@ -14,6 +14,7 @@ The extension opens in the Chrome side panel. Click a word on the current page t
 - Optionally copy words in lowercase
 - Copy the active page URL
 - Extract and copy text from page elements by CSS selector
+- **AI-powered keyword extraction** via OpenRouter — automatically pick keywords from the page using a custom prompt
 - Clear all selected words and page highlights at once
 
 ## Tech Stack
@@ -66,8 +67,19 @@ Load the extension in Chrome:
 - `npm run build` - Type-check and build the extension
 - `npm run preview` - Preview the production build
 
+## AI Keyword Selection
+
+The extension can automatically extract keywords from the current page using AI via the [OpenRouter](https://openrouter.ai/) API.
+
+1. Open the **✨ AI Pick** section in the side panel
+2. Enter your OpenRouter API key (it is saved locally in `chrome.storage.local` and never sent anywhere except OpenRouter)
+3. Optionally change the model (default: `google/gemini-2.5-flash`) and customize the prompt
+4. Click **AI Pick Keywords** — the extension extracts page text (using the CSS selector if set, or the full page), sends it to the AI, and adds the returned keywords to your list with highlights
+
 ## How It Works
 
 The content script listens for clicks on regular page text. When a word is selected, it wraps matching words in highlight spans and sends the selected word to the side panel. The side panel keeps the editable list of selected words and sends commands back to the content script when words are removed or all highlights are cleared.
 
 For CSS selector extraction, the side panel sends the selector to the active tab. The content script reads matching elements, joins their text content, and returns it for copying.
+
+For AI keyword extraction, the side panel requests the page text from the content script, sends it along with the user's prompt to the OpenRouter API, parses the JSON array of keywords from the response, adds them to the word list, and highlights all matches on the page.

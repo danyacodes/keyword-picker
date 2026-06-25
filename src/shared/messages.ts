@@ -6,6 +6,8 @@ export const MessageType = {
   GetCssText: "GET_CSS_TEXT",
   ClearHighlights: "CLEAR_HIGHLIGHTS",
   RemoveWordHighlights: "REMOVE_WORD_HIGHLIGHTS",
+  GetPageText: "GET_PAGE_TEXT",
+  HighlightWords: "HIGHLIGHT_WORDS",
 } as const;
 
 export type MessageType = (typeof MessageType)[keyof typeof MessageType];

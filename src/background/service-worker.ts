@@ -81,4 +81,23 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       }
     });
   }
+
+  if (message.type === MessageType.GetPageText) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, message, (response) => {
+          sendResponse(response);
+        });
+      }
+    });
+    return true;
+  }
+
+  if (message.type === MessageType.HighlightWords) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, message);
+      }
+    });
+  }
 });

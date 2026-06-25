@@ -260,4 +260,28 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       sendResponse({ error: "invalid-selector" });
     }
   }
+
+  if (message.type === MessageType.GetPageText) {
+    let text: string;
+    if (message.selector) {
+      try {
+        text = getTextBySelector(message.selector);
+      } catch {
+        text = document.body.innerText;
+      }
+    } else {
+      text = document.body.innerText;
+    }
+    sendResponse({ text });
+  }
+
+  if (message.type === MessageType.HighlightWords) {
+    const words: string[] = message.words || [];
+    for (const word of words) {
+      highlightWord(word);
+    }
+  }
+
+  // Keep the message channel open for async responses
+  return true;
 });
